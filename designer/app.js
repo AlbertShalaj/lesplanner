@@ -6,9 +6,9 @@ const STORAGE_KEY = 'lesplanner-designer-state';
 // State
 const state = {
     config: {
-        id: 'mijn-les-1',
-        title: 'Lesonderwerp Hier',
-        description: 'Typ hier een korte beschrijving van je les of de belangrijkste leerdoelen.',
+        id: 'mijn-les-sjabloon',
+        title: 'Titel van de Les',
+        description: 'Geef hier een korte samenvatting van de les of de belangrijkste leerdoelen (max 1 of 2 zinnen).',
         subject: 'physics',
         showMascot: true,
         cursusLink: '',
@@ -17,18 +17,18 @@ const state = {
         labUrl: '',
         workbook: {
             title: 'Werkboek Oplossingen',
-            subtitle: 'Subtitel (bijv. Pagina\'s)',
-            instructions: 'Hier kun je tips of instructies plaatsen voor de leerlingen.',
+            subtitle: 'Pagina 10 - 14',
+            instructions: 'Hier kun je extra tips plaatsen. Bijvoorbeeld: **Let op de eenheden!** Reken altijd eerst om naar meters.',
             password: '',
             passwordHint: 'Wachtwoord nodig?',
-            solutionContent: 'Plaats hier de tekstuele oplossingen...',
+            solutionContent: '**Oefening 1:** Antwoord is 42\n**Oefening 2:** Gebruik de formule E=mc²',
             solutionLink: '',
-            solutionLinkText: 'Open Oplossingen'
+            solutionLinkText: 'Open PDF Oplossingen'
         },
-        goals: ['Ik kan...', 'Ik weet...'],
-        prerequisites: ['Basiskennis over...'],
-        equipment: [],
-        textbook: '',
+        goals: ['Ik kan het verschil tussen snelheid en versnelling uitleggen.', 'Ik weet hoe ik kracht moet berekenen met F=m*a.'],
+        prerequisites: ['Basiskennis van eenheden (m, s, kg).'],
+        equipment: ['Rekenmachine', 'Geodriehoek'],
+        textbook: 'Focus Fysica - Hoofdstuk 3',
         students: [],
         breakEnabled: true,
         breakAfterStep: 2,
@@ -42,8 +42,8 @@ const state = {
                     type: 'class',
                     badge: 'Klassikaal',
                     meta: 'PowerPoint',
-                    title: 'Klassikale Start',
-                    description: 'Typ hier wat je gaat doen tijdens de introductie van de les.',
+                    title: 'Introductie & Doelen',
+                    description: 'Korte uitleg over wat we vandaag gaan doen en het bespreken van de leerdoelen.',
                     actionText: 'Open Presentatie',
                     actionType: 'external_url',
                     url: 'presentationUrl'
@@ -57,10 +57,10 @@ const state = {
                 card: {
                     type: 'digital',
                     badge: 'Digitaal',
-                    meta: 'Interactieve Tool',
-                    title: 'Naam van de Webapp',
-                    description: 'Gebruik hier een van je eigen webapps (bijv. de molcalculator of elektronenconfigurator).',
-                    actionText: 'Open App',
+                    meta: 'Web-app',
+                    title: 'Interactieve Oefening',
+                    description: 'Gebruik de molcalculator of simulatie om de concepten in de praktijk te testen.',
+                    actionText: 'Start Tool',
                     actionType: 'external_url',
                     url: 'labUrl'
                 }
@@ -73,10 +73,10 @@ const state = {
                 card: {
                     type: 'paper',
                     badge: 'Werkboek/papier',
-                    meta: 'Pagina ...',
-                    title: 'Zelfstandig Aan de Slag',
-                    description: 'Leerlingen werken aan opdrachten in het werkboek of op papier.',
-                    actionText: 'Bekijk Oplossingen',
+                    meta: 'Pagina 12-15',
+                    title: 'Oefeningen Maken',
+                    description: 'Maak de opdrachten in je werkboek. Klik hieronder voor de oplossingen als je klaar bent.',
+                    actionText: 'Check Oplossingen',
                     actionType: 'workbook',
                     url: ''
                 }
@@ -90,8 +90,8 @@ const state = {
                     type: 'digital',
                     badge: 'Digitaal',
                     meta: 'Exit Ticket',
-                    title: 'Les Afsluiten',
-                    description: 'Een korte check om te kijken of de doelen zijn behaald.',
+                    title: 'Check-out Quiz',
+                    description: 'Heb je de doelen van vandaag behaald? Vul even snel de exit ticket in.',
                     actionText: 'Start Exit Ticket',
                     actionType: 'external_url',
                     url: 'exitTicketUrl'
@@ -182,7 +182,10 @@ const elements = {
     activityCardAction: document.getElementById('activity-card-action'),
     activityUrlGroup: document.getElementById('activity-url-group'),
     activityCardUrl: document.getElementById('activity-card-url'),
-    activityCardActionText: document.getElementById('activity-card-action-text')
+    activityCardActionText: document.getElementById('activity-card-action-text'),
+
+    // Settings
+    btnResetTemplate: document.getElementById('btn-reset-template')
 };
 
 // ===== Persistence =====
@@ -315,6 +318,17 @@ VEEL SUCCES!`;
 
     elements.btnAiPrompt.textContent = '✅ Instructies Gedownload!';
     setTimeout(() => elements.btnAiPrompt.textContent = '🤖 AI Prompt', 2000);
+});
+
+// Reset Template
+elements.btnResetTemplate.addEventListener('click', () => {
+    if (confirm('Weet je zeker dat je alle gegevens wilt wissen en het standaard sjabloon wilt herstellen?')) {
+        // Clear storage
+        localStorage.removeItem(STORAGE_KEY);
+
+        // Reload page to get clean state (easiest way to reset all complex objects)
+        window.location.reload();
+    }
 });
 
 // Goals
