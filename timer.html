@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Timer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #ffffff;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            width: 140px;
+            border: none;
+            border-bottom: 3px solid #e2e8f0;
+            font-size: 4rem;
+            text-align: center;
+            font-weight: bold;
+            color: #1e293b;
+            outline: none;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+
+        input:focus {
+            border-color: #6366f1;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .colon {
+            margin-top: -10px;
+        }
+
+        .display {
+            font-size: 8rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        button {
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .finished {
+            animation: pulseBg 1s infinite;
+            color: #dc2626;
+        }
+
+        @keyframes pulseBg {
+            0% {
+                background: #fff;
+            }
+
+            50% {
+                background: #fef2f2;
+            }
+
+            100% {
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="setup" class="container">
+        <div class="inputs">
+            <input type="number" id="inMins" value="05" placeholder="00" min="0" max="99" onblur="pad(this)"
+                autocomplete="off">
+            <span class="colon">:</span>
+            <input type="number" id="inSecs" value="00" placeholder="00" min="0" max="59" onblur="pad(this)"
+                autocomplete="off">
+        </div>
+        <div class="controls">
+            <button onclick="startTimer()" class="btn-primary">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"></path>
+                </svg>
+                Start
+            </button>
+        </div>
+    </div>
+
+    <div id="running" class="container hidden">
+        <div id="display" class="display">05:00</div>
+        <div class="controls">
+            <button onclick="resetTimer()" class="btn-secondary">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                Reset
+            </button>
+            <button id="toggleBtn" onclick="togglePause()" class="btn-primary">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Pause
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let interval;
+        let timeLeft = 0;
+        let isPaused = false;
+        let audioCtx;
+
+        function pad(el) {
+            el.value = el.value.toString().padStart(2, '0');
+        }
+
+        function startTimer() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const m = parseInt(document.getElementById('inMins').value) || 0;
+            const s = parseInt(document.getElementById('inSecs').value) || 0;
+            if (m === 0 && s === 0) return;
+
+            timeLeft = m * 60 + s;
+            updateDisplay();
+
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('running').classList.remove('hidden');
+            document.body.classList.remove('finished');
+
+            isPaused = false;
+            if (interval) clearInterval(interval);
+            interval = setInterval(tick, 1000);
+        }
+
+        function tick() {
+            if (isPaused) return;
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateDisplay();
+            } else {
+                finish();
+            }
+        }
+
+        function finish() {
+            clearInterval(interval);
+            document.body.classList.add('finished');
+            playAlarm();
+        }
+
+        function updateDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('display').textContent = `${m}:${s}`;
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('toggleBtn');
+            if (isPaused) {
+                btn.innerHTML = 'Resume';
+                btn.classList.add('btn-danger');
+            } else {
+                btn.innerHTML = 'Pause';
+                btn.classList.remove('btn-danger');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            document.getElementById('setup').classList.remove('hidden');
+            document.getElementById('running').classList.add('hidden');
+            document.body.classList.remove('finished');
+        }
+
+        function playAlarm() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.setValueAtTime(440, now + 0.2);
+            osc.frequency.setValueAtTime(880, now + 0.4);
+            osc.frequency.setValueAtTime(440, now + 0.6);
+
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+            osc.start(now);
+            osc.stop(now + 0.8);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('setup').classList.contains('hidden')) {
+                startTimer();
+            }
+        });
+    </script>
+</body>
+
+</html>
