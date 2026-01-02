@@ -6,9 +6,9 @@ const STORAGE_KEY = 'lesplanner-designer-state';
 // State
 const state = {
     config: {
-        id: 'mijn-les-sjabloon',
-        title: 'Titel van de Les',
-        description: 'Geef hier een korte samenvatting van de les of de belangrijkste leerdoelen (max 1 of 2 zinnen).',
+        id: 'leeg-sjabloon',
+        title: 'Lesonderwerp Hier',
+        description: 'Typ hier een korte beschrijving van je les of de belangrijkste leerdoelen.',
         subject: 'physics',
         showMascot: true,
         cursusLink: '',
@@ -17,18 +17,18 @@ const state = {
         labUrl: '',
         workbook: {
             title: 'Werkboek Oplossingen',
-            subtitle: 'Pagina 10 - 14',
-            instructions: 'Hier kun je extra tips plaatsen. Bijvoorbeeld: **Let op de eenheden!** Reken altijd eerst om naar meters.',
+            subtitle: 'Subtitel (bijv. Pagina\'s)',
+            instructions: 'Hier kun je tips of instructies plaatsen voor de leerlingen.',
             password: '',
             passwordHint: 'Wachtwoord nodig?',
-            solutionContent: '**Oefening 1:** Antwoord is 42\n**Oefening 2:** Gebruik de formule E=mc²',
+            solutionContent: 'Plaats hier de tekstuele oplossingen...',
             solutionLink: '',
-            solutionLinkText: 'Open PDF Oplossingen'
+            solutionLinkText: 'Open Oplossingen'
         },
-        goals: ['Ik kan het verschil tussen snelheid en versnelling uitleggen.', 'Ik weet hoe ik kracht moet berekenen met F=m*a.'],
-        prerequisites: ['Basiskennis van eenheden (m, s, kg).'],
-        equipment: ['Rekenmachine', 'Geodriehoek'],
-        textbook: 'Focus Fysica - Hoofdstuk 3',
+        goals: ['Ik kan...', 'Ik weet...'],
+        prerequisites: ['Basiskennis over...'],
+        equipment: [],
+        textbook: '',
         students: [],
         breakEnabled: true,
         breakAfterStep: 2,
@@ -40,10 +40,9 @@ const state = {
                 time: '10 min',
                 card: {
                     type: 'class',
-                    badge: 'Klassikaal',
                     meta: 'PowerPoint',
-                    title: 'Introductie & Doelen',
-                    description: 'Korte uitleg over wat we vandaag gaan doen en het bespreken van de leerdoelen.',
+                    title: 'Klassikale Start',
+                    description: 'Typ hier wat je gaat doen tijdens de introductie van de les.',
                     actionText: 'Open Presentatie',
                     actionType: 'external_url',
                     url: 'presentationUrl'
@@ -56,11 +55,10 @@ const state = {
                 time: '15 min',
                 card: {
                     type: 'digital',
-                    badge: 'Digitaal',
-                    meta: 'Web-app',
-                    title: 'Interactieve Oefening',
-                    description: 'Gebruik de molcalculator of simulatie om de concepten in de praktijk te testen.',
-                    actionText: 'Start Tool',
+                    meta: 'Interactieve Tool',
+                    title: 'Naam van de Webapp',
+                    description: 'Gebruik hier een van je eigen webapps (bijv. molcalculator of elektronenconfigurator).',
+                    actionText: 'Open App',
                     actionType: 'external_url',
                     url: 'labUrl'
                 }
@@ -72,11 +70,10 @@ const state = {
                 time: '20 min',
                 card: {
                     type: 'paper',
-                    badge: 'Werkboek/papier',
-                    meta: 'Pagina 12-15',
-                    title: 'Oefeningen Maken',
-                    description: 'Maak de opdrachten in je werkboek. Klik hieronder voor de oplossingen als je klaar bent.',
-                    actionText: 'Check Oplossingen',
+                    meta: 'Pagina ...',
+                    title: 'Zelfstandig Aan de Slag',
+                    description: 'Leerlingen werken aan opdrachten in het werkboek of op papier.',
+                    actionText: 'Bekijk Oplossingen',
                     actionType: 'workbook',
                     url: ''
                 }
@@ -88,10 +85,9 @@ const state = {
                 time: '5 min',
                 card: {
                     type: 'digital',
-                    badge: 'Digitaal',
                     meta: 'Exit Ticket',
-                    title: 'Check-out Quiz',
-                    description: 'Heb je de doelen van vandaag behaald? Vul even snel de exit ticket in.',
+                    title: 'Les Afsluiten',
+                    description: 'Een korte check om te kijken of de doelen zijn behaald.',
                     actionText: 'Start Exit Ticket',
                     actionType: 'external_url',
                     url: 'exitTicketUrl'
@@ -261,18 +257,184 @@ function getListValues(listElement) {
 
 // AI Prompt - Download instruction file
 elements.btnAiPrompt.addEventListener('click', () => {
-    const promptText = `Hoi Gemini! 
+    const promptText = `╔══════════════════════════════════════════════════════════════════╗
+║              INTERACTIEVE LESPLANNER - AI INSTRUCTIES           ║
+║                      Project Context Document                    ║
+╚══════════════════════════════════════════════════════════════════╝
 
-Ik ben bezig met een lesontwerp voor mijn interactieve Lesplanner. 
-Kun je me helpen de inhoud te genereren in het juiste JSON formaat?
+📚 WAT IS DE LESPLANNER?
+─────────────────────────────────────────────────────────────────────
+De Interactieve Lesplanner is een Vue.js-based educatief platform voor 
+natuurkunde en scheikunde docenten. Het biedt:
 
-STAP 1: KOPIEER DE ONDERSTAANDE JSON STRUCTUUR
---------------------------------------------------
+• Een visuele tijdlijn voor lesactiviteiten
+• Interactieve widgets (timer, rekenmachine, namenroller)
+• Workbook management met wachtwoordbeveiliging
+• Preview en share functionaliteit via JSON configuraties
+
+De planner scheidt STRUCTUUR (Vue app) van INHOUD (JSON config).
+Dit bestand helpt je om een JSON configuratie te genereren.
+
+═════════════════════════════════════════════════════════════════════
+
+📋 VOLLEDIGE JSON SCHEMA
+─────────────────────────────────────────────────────────────────────
+
 {
-  "title": "[Titel van de les]",
-  "description": "[Korte samenvatting]",
-  "goals": ["Ik kan...", "Ik weet..."],
-  "prerequisites": ["Voorkennis..."],
+  "id": "string (unieke-id-kebab-case)",
+  "title": "string (titel van de les)",
+  "description": "string (1-2 zinnen korte beschrijving)",
+  "subject": "physics | chemistry",
+  "showMascot": boolean,
+  
+  "cursusLink": "string (URL naar cursus PDF)",
+  "presentationUrl": "string (URL naar PowerPoint/slides)",
+  "exitTicketUrl": "string (URL naar exit ticket/quiz)",
+  "labUrl": "string (URL naar interactieve tool/webapp)",
+  
+  "workbook": {
+    "title": "string",
+    "subtitle": "string (bijv. 'Pagina 10-14')",
+    "instructions": "string (Markdown supported)",
+    "password": "string (optioneel wachtwoord)",
+    "passwordHint": "string",
+    "solutionContent": "string (Markdown supported)",
+    "solutionLink": "string (optionele PDF URL)",
+    "solutionLinkText": "string"
+  },
+  
+  "goals": [
+    "string (begin met 'Ik kan...' of 'Ik weet...')"
+  ],
+  
+  "prerequisites": [
+    "string (vereiste voorkennis)"
+  ],
+  
+  "equipment": [
+    "string (benodigdheden, bijv. 'Rekenmachine')"
+  ],
+  
+  "textbook": "string (hoofdstuk referentie)",
+  
+  "students": [
+    "string (namen voor Name Picker widget)"
+  ],
+  
+  "breakEnabled": boolean,
+  "breakAfterStep": integer (0-based index, bijv. 1 = pauze na stap B),
+  
+  "timeline": [
+    {
+      "step": "string (A, B, C, D, ...)",
+      "title": "string",
+      "subtitle": "string",
+      "time": "string (bijv. '10 min', '15 min')",
+      "card": {
+        "type": "class | digital | paper",
+        "meta": "string (extra label, bijv. 'PowerPoint', 'Pagina 12')",
+        "title": "string",
+        "description": "string",
+        "actionType": "external_url | workbook",
+        "url": "string | presentationUrl | labUrl | exitTicketUrl",
+        "actionText": "string (knop tekst)"
+      }
+    }
+  ]
+}
+
+═════════════════════════════════════════════════════════════════════
+
+⚙️ BELANGRIJKE REGELS & CONSTRAINTS
+─────────────────────────────────────────────────────────────────────
+
+1. CARD TYPES:
+   • "class" = Klassikale activiteit (docent-gedreven)
+   • "digital" = Digitale tool/webapp (leerling op device)
+   • "paper" = Werkboek/papier oefeningen
+
+2. ACTION TYPES:
+   • "external_url" = Opent een URL in nieuw tabblad
+   • "workbook" = Opent de workbook modal met oplossingen
+
+3. URL SHORTCUTS (legacy support):
+   Je kunt 'presentationUrl', 'labUrl', 'exitTicketUrl' als waarde 
+   gebruiken in card.url - deze worden automatisch vervangen door 
+   de échte URLs uit de root config.
+
+4. TIMELINE STEPS:
+   • Gebruik altijd letters: A, B, C, D, ...
+   • Minimum 3 stappen, maximum ~10 (voor leesbaarheid)
+   • Mix verschillende card types voor afwisseling
+
+5. BREAK POSITION:
+   • breakAfterStep is 0-based (0 = na A, 1 = na B, etc.)
+   • Typisch na stap 2 (na C) voor 50-minuten les
+
+═════════════════════════════════════════════════════════════════════
+
+✨ BEST PRACTICES
+─────────────────────────────────────────────────────────────────────
+
+✓ Gebruik concrete, actieve taal in descriptions
+✓ Houd titles kort (3-5 woorden)
+✓ Varieer card types (niet alleen digital)
+✓ Geef realistische tijdsinschattingen
+✓ Maak goals SMART en leerling-gecentreerd
+✓ Gebruik Markdown in workbook content (**bold**, *italic*, lijsten)
+✓ Zorg dat de totale tijd past in een lesuur (~50 min)
+
+═════════════════════════════════════════════════════════════════════
+
+🎯 VOORBEELD: VOLLEDIGE CONFIGURATIE
+─────────────────────────────────────────────────────────────────────
+
+{
+  "id": "newton-beweging",
+  "title": "Beweging en Kracht",
+  "description": "In deze les leren leerlingen de basisprincipes van Newton's wetten en passen ze deze toe op bewegingssituaties.",
+  "subject": "physics",
+  "showMascot": true,
+  
+  "cursusLink": "https://example.com/cursus.pdf",
+  "presentationUrl": "https://example.com/slides",
+  "exitTicketUrl": "https://forms.google.com/exit",
+  "labUrl": "https://example.com/simulator",
+  
+  "workbook": {
+    "title": "Oefeningen Newton",
+    "subtitle": "Pagina 24-27",
+    "instructions": "**Let op:** Werk altijd in SI-eenheden (m, kg, s)",
+    "password": "F=ma",
+    "passwordHint": "De tweede wet van Newton",
+    "solutionContent": "**Opgave 1:** F = 10 N\\n**Opgave 2:** a = 5 m/s²",
+    "solutionLink": "",
+    "solutionLinkText": "Open PDF Oplossingen"
+  },
+  
+  "goals": [
+    "Ik kan de drie wetten van Newton uitleggen",
+    "Ik weet hoe ik kracht bereken met F = m × a",
+    "Ik kan bewegingsdiagrammen interpreteren"
+  ],
+  
+  "prerequisites": [
+    "Basiskennis van eenheden (m, s, kg)",
+    "Kunnen werken met formules"
+  ],
+  
+  "equipment": [
+    "Rekenmachine",
+    "Geodriehoek"
+  ],
+  
+  "textbook": "Focus Fysica - Hoofdstuk 4",
+  
+  "students": [],
+  
+  "breakEnabled": true,
+  "breakAfterStep": 1,
+  
   "timeline": [
     {
       "step": "A",
@@ -281,38 +443,110 @@ STAP 1: KOPIEER DE ONDERSTAANDE JSON STRUCTUUR
       "time": "10 min",
       "card": {
         "type": "class",
-        "title": "Start",
-        "description": "...",
+        "meta": "PowerPoint",
+        "title": "Newton's Wetten",
+        "description": "We bespreken de drie bewegingswetten en bekijken filmpjes van experimenten.",
         "actionType": "external_url",
-        "actionText": "Open Presentatie",
-        "url": "presentationUrl"
+        "url": "presentationUrl",
+        "actionText": "Open Presentatie"
+      }
+    },
+    {
+      "step": "B",
+      "title": "Simulatie",
+      "subtitle": "Digitaal",
+      "time": "15 min",
+      "card": {
+        "type": "digital",
+        "meta": "PhET Simulator",
+        "title": "Kracht en Beweging",
+        "description": "Experimenteer met verschillende massa's en krachten in de simulator.",
+        "actionType": "external_url",
+        "url": "labUrl",
+        "actionText": "Start Simulator"
+      }
+    },
+    {
+      "step": "C",
+      "title": "Oefeningen",
+      "subtitle": "Zelfstandig",
+      "time": "20 min",
+      "card": {
+        "type": "paper",
+        "meta": "Pagina 24-27",
+        "title": "Rekenen met F = m × a",
+        "description": "Maak de opgaven in je werkboek. Controleer je antwoorden met het wachtwoord.",
+        "actionType": "workbook",
+        "url": "",
+        "actionText": "Bekijk Oplossingen"
+      }
+    },
+    {
+      "step": "D",
+      "title": "Afsluiting",
+      "subtitle": "Check-out",
+      "time": "5 min",
+      "card": {
+        "type": "digital",
+        "meta": "Google Forms",
+        "title": "Exit Ticket",
+        "description": "Beantwoord 3 korte vragen om te checken of je de doelen hebt behaald.",
+        "actionType": "external_url",
+        "url": "exitTicketUrl",
+        "actionText": "Start Exit Ticket"
       }
     }
-  ],
-  "workbook": {
-    "title": "Oplossingen",
-    "instructions": "Tips...",
-    "solutionContent": "De antwoorden zijn..."
-  }
+  ]
 }
---------------------------------------------------
 
-STAP 2: PLAK DEZE TEKST IN DE GEMINI CHAT
---------------------------------------------------
-"Hierboven zie je het schema van mijn Lesplanner. 
-Ik wil een les maken over: [BESCHRIJF HIER JE ONDERWERP EN DOELGROEP].
+═════════════════════════════════════════════════════════════════════
 
-Kun je de velden voor me invullen en me de volledige JSON code teruggeven in een codeblok?
-Zorg dat de 'timeline' minimaal 3 stappen heeft (A, B, C) met een mix van 'class', 'paper' en 'digital' cards."
---------------------------------------------------
+🤖 HOE DIT BESTAND TE GEBRUIKEN
+─────────────────────────────────────────────────────────────────────
 
-VEEL SUCCES!`;
+STAP 1: Kopieer dit HELE bestand naar je AI assistent (ChatGPT, Gemini, 
+        Copilot, of andere)
 
-    const blob = new Blob([promptText], { type: 'text/plain' });
+STAP 2: Voeg je eigen prompt toe, bijvoorbeeld:
+
+        "Op basis van bovenstaande schema, genereer een volledige
+        JSON configuratie voor een les over:
+        
+        Onderwerp: [JE ONDERWERP HIER]
+        Doelgroep: [LEERJAAR EN NIVEAU]
+        Duur: [50 min / 100 min]
+        Belangrijke toepassingen: [SPECIFIEKE OEFENINGEN/APPS]
+        
+        Geef me alleen de JSON terug in een codeblok."
+
+STAP 3: Kopieer de gegenereerde JSON naar de Designer en paste verder aan!
+
+═════════════════════════════════════════════════════════════════════
+
+📝 TIPS VOOR BETERE AI RESULTATEN
+─────────────────────────────────────────────────────────────────────
+
+• Wees specifiek over het onderwerp (niet "elektriciteit" maar "Wet van Ohm")
+• Geef context: leerjaar, voorkennis, beschikbare tools
+• Noem specifieke apps/URLs als je die hebt
+• Vraag de AI om verschillende card types te mixen
+• Laat de AI realistische tijdsinschattingen maken
+• Vraag om concrete, meetbare leerdoelen
+
+═════════════════════════════════════════════════════════════════════
+
+Veel succes met je lesontwerp! 🚀
+
+─────────────────────────────────────────────────────────────────────
+Gegenereerd door de Interactieve Lesplanner Designer
+Voor meer info: https://github.com/[je-repo]
+═════════════════════════════════════════════════════════════════════`;
+
+    const blob = new Blob([promptText], { type: 'text/plain; charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'gemini-lesplanner-instructies.txt';
+    a.download = 'LESPLANNER_AI_INSTRUCTIES.txt';
     a.click();
     URL.revokeObjectURL(url);
 
